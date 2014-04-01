@@ -1,17 +1,29 @@
 require 'spec_helper'
+require 'capybara'
 
 feature 'Admin panel' do
   context "on admin homepage" do
     it "can see a list of recent posts" do
-      post = Post.create(title: "my new post", content: "here's some content")
-
-      visit('/admin/posts')
-
+      post = Post.create(title: "SOME RANDOM TITLE", content: "here's some content")
+      page.driver.browser.authorize 'geek', 'jock'
+      visit admin_posts_url
       expect(page).to have_content post.title
-      expect(page).to have_content post.content
     end
 
-    it "can edit a post by clicking the edit link next to a post"
+    it "can edit a post by clicking the edit link next to a post" do
+      post = Post.create(title: "SOME RANDOM TITLE2", content: "here's some content")
+      page.driver.browser.authorize 'geek', 'jock'
+      visit admin_posts_url
+      expect(page).to have_link 'Edit'
+      click_link('Edit')
+
+      fill_in('post[title]', :with => 'a new title')
+      fill_in('post[content]', :with => 'heres some new content')
+      check('post[is_published]')
+      click_button( 'Save' )
+
+      expect(page).to have_content 'A New Title'
+    end
 
     it "can delete a post by clicking the delete link next to a post"
 
